@@ -27,7 +27,8 @@ module serv_rf_ram_if
    output wire [width-1:0] 		o_wdata,
    output wire 				o_wen,
    output wire [$clog2(depth)-1:0] 	o_raddr,
-   input wire [width-1:0] 		i_rdata);
+   input wire [width-1:0] 		i_rdata,
+   output wire 				o_ren);
 
    reg 				   rgnt;
    assign o_ready = rgnt | i_wreq;
@@ -91,7 +92,6 @@ module serv_rf_ram_if
     ********** Read side ***********
     */
 
-
    wire 	  rtrig0;
    reg 		  rtrig1;
 
@@ -105,10 +105,13 @@ module serv_rf_ram_if
    reg [width-1:0]  rdata0;
    reg [width-2:0]  rdata1;
 
+   reg 		    rgate;
+
    assign o_rdata0 = rdata0[0];
    assign o_rdata1 = rtrig1 ? i_rdata[0] : rdata1[0];
 
    assign rtrig0 = (rcnt[l2w-1:0] == 1);
+   assign o_ren = rgate & ((rcnt[l2w-1:0] == 0) | rtrig0);
 
    reg 	      rreq_r;
 
@@ -123,6 +126,11 @@ module serv_rf_ram_if
    endgenerate
 
    always @(posedge i_clk) begin
+      if (&rcnt)
+	rgate <= 1'b0;
+      else if (i_rreq)
+	rgate <= 1'b1;
+
       rtrig1 <= rtrig0;
       rcnt <= rcnt+5'd1;
       if (i_rreq)
@@ -139,6 +147,8 @@ module serv_rf_ram_if
 
       if (i_rst) begin
 	 if (reset_strategy != "NONE") begin
+	    rgate <= 1'b0;
+	    rcnt <= 5'd2;
 	    rgnt <= 1'b0;
 	    rreq_r <= 1'b0;
 	 end

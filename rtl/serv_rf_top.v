@@ -98,7 +98,8 @@ module serv_rf_top
       .o_wdata  (wdata),
       .o_wen    (wen),
       .o_raddr  (raddr),
-      .i_rdata  (rdata));
+      .i_rdata  (rdata),
+      .o_ren    ());
 
    serv_rf_ram
      #(.width (RF_WIDTH),

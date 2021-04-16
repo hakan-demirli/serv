@@ -191,7 +191,8 @@ module serving
       .o_wdata  (wdata),
       .o_wen    (wen),
       .o_raddr  (raddr),
-      .i_rdata  (rdata));
+      .i_rdata  (rdata),
+      .o_ren    ());
 
    serv_top
      #(.RESET_PC (32'h0000_0000),
