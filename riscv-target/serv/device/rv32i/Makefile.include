@@ -10,13 +10,13 @@ RUN_TARGET=\
         +firmware=$(<).hex 2> $@
 
 RISCV_PREFIX   ?= riscv32-unknown-elf-
-RISCV_GCC      ?= $(RISCV_PREFIX)gcc
+RISCV_GCC_A      ?= $(RISCV_PREFIX)gcc
 RISCV_OBJCOPY  ?= $(RISCV_PREFIX)objcopy
 RISCV_OBJDUMP  ?= $(RISCV_PREFIX)objdump
 RISCV_GCC_OPTS ?= -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles
 
 COMPILE_TARGET=\
-	$$(RISCV_GCC) $(1) $$(RISCV_GCC_OPTS) \
+	$$(RISCV_GCC_A) $(1) $$(RISCV_GCC_OPTS) \
 		-I$(ROOTDIR)/riscv-test-env/ \
 		-I$(TARGETDIR)/$(RISCV_TARGET)/ \
 		-T$(TARGETDIR)/$(RISCV_TARGET)/link.ld $$< \
