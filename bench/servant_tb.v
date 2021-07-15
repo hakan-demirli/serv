@@ -13,7 +13,7 @@ module servant_tb;
    always  #31 wb_clk <= !wb_clk;
    initial #62 wb_rst <= 1'b0;
 
-   vlog_tb_utils vtu();
+   //vlog_tb_utils vtu();
 
    uart_decoder #(57600) uart_decoder (q);
 

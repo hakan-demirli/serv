@@ -1,16 +1,35 @@
+ /*
+ Taken from: https://github.com/olofk/serv
+ 
+ ****************************************
+ Change_log:
+ -  13_07_2021__13_44:
+	By :https://github.com/hakan-demirli
+		o_wb_gpio_adr variable created to connect serv_mux to serv_gpio
+		ADR_WIDTH_GPIO parameter created to change the width of the gpio_adr
+      NUM_GPIO parameter created to change the number of gpio registers
+      All the parameters are made global
+ ****************************************
+ */
+
+
 `default_nettype none
 module servant
+  #(parameter NUM_GPIO = 8,
+    parameter ADR_WIDTH_GPIO = 3,
+    parameter memfile = "zephyr_hello.hex",
+    parameter memsize = 8192,
+    parameter reset_strategy = "MINI",
+    parameter sim = 0,
+    parameter with_csr = 1)
 (
  input wire  wb_clk,
  input wire  wb_rst,
- output wire q);
+ output wire[(NUM_GPIO-1):0] q);
 
-   parameter memfile = "zephyr_hello.hex";
-   parameter memsize = 8192;
-   parameter reset_strategy = "MINI";
-   parameter sim = 0;
-   parameter with_csr = 1;
 
+
+	
    wire 	timer_irq;
 
    wire [31:0] 	wb_ibus_adr;
@@ -45,6 +64,7 @@ module servant
    wire 	wb_gpio_dat;
    wire 	wb_gpio_we;
    wire 	wb_gpio_cyc;
+   wire  [(ADR_WIDTH_GPIO-1):0]    wb_gpio_adr;
    wire 	wb_gpio_rdt;
 
    wire [31:0] 	wb_timer_dat;
@@ -74,7 +94,10 @@ module servant
       .i_wb_cpu_rdt (wb_mem_rdt),
       .i_wb_cpu_ack (wb_mem_ack));
 
-   servant_mux #(sim) servant_mux
+   servant_mux 
+	#(.sim(sim),
+	.ADR_WIDTH_GPIO(ADR_WIDTH_GPIO))
+	servant_mux
      (
       .i_clk (wb_clk),
       .i_rst (wb_rst & (reset_strategy != "NONE")),
@@ -96,6 +119,7 @@ module servant
       .o_wb_gpio_dat (wb_gpio_dat),
       .o_wb_gpio_we  (wb_gpio_we),
       .o_wb_gpio_cyc (wb_gpio_cyc),
+      .o_wb_gpio_adr (wb_gpio_adr),
       .i_wb_gpio_rdt (wb_gpio_rdt),
 
       .o_wb_timer_dat (wb_timer_dat),
@@ -138,11 +162,15 @@ module servant
       end
    endgenerate
 
-   servant_gpio gpio
+   servant_gpio  
+	#(.NUM_GPIO(NUM_GPIO),
+    .ADR_WIDTH_GPIO(ADR_WIDTH_GPIO)) 
+	 gpio
      (.i_wb_clk (wb_clk),
       .i_wb_dat (wb_gpio_dat),
       .i_wb_we  (wb_gpio_we),
       .i_wb_cyc (wb_gpio_cyc),
+      .i_wb_gpio_adr (wb_gpio_adr),
       .o_wb_rdt (wb_gpio_rdt),
       .o_gpio   (q));
 
