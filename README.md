@@ -169,3 +169,8 @@ SOLUTION
 * Use “--memsize=32768” argument to specify the memory size. Change the size accordingly.    
 ```fusesoc run --target=verilator_tb servant --uart_baudrate=57600 --memsize=32768 --firmware=/home/zerotoasic/zephyr/samples/hello_world/hello.hex```
 
+``` 
+unsupported or unknown PLI call: $dumpfile
+```   
+SOLUTION
+* Update verilator by building latest version.
