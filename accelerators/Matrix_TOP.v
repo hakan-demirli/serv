@@ -13,7 +13,6 @@ module Matrix_TOP #(
     reg [31:0]data_rdt;
     assign o_data_rdt = data_rdt;
 
-    wire [1:0]state; // sim
     wire rst;
     wire finished;
     wire [4:0]column_adr;
