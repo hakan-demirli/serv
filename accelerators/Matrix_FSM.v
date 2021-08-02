@@ -1,20 +1,20 @@
 `default_nettype none
-module matmul_top #(
+module Matrix_FSM #(
 parameter CORE_COUNT = 4
 )(
-   input wire CLOCK_25,
-   input wire start,
-   output wire o_rst,
-	output wire [4:0]o_column_adr,
-   output wire [4:0]o_row_adr,
-	output wire [4:0]o_row_adr_pipe,
-   output wire [4:0]o_core_column,
-   output wire [4:0]o_core_column_pipe,
-   output wire [1:0]o_state
+    input wire CLOCK_25,
+    input wire start,
+    input wire [7:0] size_column,
+    input wire [7:0] size_row,
+    output wire o_rst,
+    output wire [4:0]o_column_adr,
+    output wire [4:0]o_row_adr,
+    output wire [4:0]o_row_adr_pipe,
+    output wire [4:0]o_core_column,
+    output wire [4:0]o_core_column_pipe,
+    output wire o_finished,
+    output wire [1:0]o_state
 );
-
-   localparam size_row = 2;
-   localparam size_column = 4;
    
    reg rst;
    reg [4:0]column_adr;
@@ -22,6 +22,8 @@ parameter CORE_COUNT = 4
    reg [4:0]row_adr_pipe;
    reg [4:0]core_column;
    reg [4:0]core_column_pipe;   
+   reg finished;
+   
    
    assign o_rst = rst;
    assign o_column_adr = column_adr;
@@ -29,12 +31,13 @@ parameter CORE_COUNT = 4
    assign o_row_adr_pipe = row_adr_pipe;
    assign o_core_column = core_column;
    assign o_core_column_pipe = core_column_pipe;
+   assign o_finished = finished;
    
 // STATE VARIABLES
 	reg [1:0]state;
 	reg [1:0]state_next;
 	localparam IDLE_DOWN = 0;
-   localparam IDLE_UP = 1;
+    localparam IDLE_UP = 1;
 	localparam DRAW_COL = 2;
    
    always@(negedge rst) begin
@@ -47,6 +50,7 @@ parameter CORE_COUNT = 4
       state <= state_next;  // advance to next 
       case(state)
          DRAW_COL: begin
+            finished <= 1;
             if(column_adr == (size_column-1)) begin
                column_adr <= 0;
                if (row_adr == (size_row-1)) begin
@@ -69,12 +73,14 @@ parameter CORE_COUNT = 4
             end
          end
          IDLE_DOWN: begin
+            finished <= 1;
             column_adr <= 0;
             row_adr <= 0;
             core_column <= 0;
             rst <= 1;
          end
          IDLE_UP: begin
+            finished <= 0;
             column_adr <= 0;
             row_adr <= 0;
             core_column <= 0;
@@ -117,6 +123,5 @@ parameter CORE_COUNT = 4
 	end
     
     // SIMULATION
-    
     assign o_state = state;
 endmodule
