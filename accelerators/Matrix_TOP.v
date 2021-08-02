@@ -74,8 +74,7 @@ module Matrix_TOP #(
         .o_row_adr_pipe(row_adr_pipe),
         .o_core_column(core_column),
         .o_core_column_pipe(core_column_pipe),
-        .o_finished(finished),
-        .o_state(state) //sim
+        .o_finished(finished)
     );
 
     genvar g_i;
@@ -91,10 +90,10 @@ module Matrix_TOP #(
         end 
     endgenerate
 
-	integer g_ii;
-	always@(posedge rst) begin
-		for (g_ii=0; g_ii<CORE_COUNT; g_ii=g_ii+1) begin : MATRIX_ASSIGN
-			third_matrix[row_adr_pipe][core_column_pipe+g_ii] <= acc[g_ii];   
-		end 
-	end
+    integer g_ii;
+    always@(posedge rst) begin
+        for (g_ii=0; g_ii<CORE_COUNT; g_ii=g_ii+1) begin : MATRIX_ASSIGN
+            third_matrix[row_adr_pipe][core_column_pipe+g_ii] <= acc[g_ii];   
+        end 
+    end
 endmodule
