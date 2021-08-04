@@ -125,16 +125,4 @@ parameter CORE_COUNT = 4
             default: state <= IDLE_DOWN;
         endcase
     end
-    
-    reg [28*8-1:0] mytextsignal;
-    always@(state) begin 
-        case(state) 
-            3'd0: mytextsignal = "IDLE_DOWN";
-            3'd1: mytextsignal = "COLUMN_MULTIPLY";
-            3'd2: mytextsignal = "ROW_INCREMENT";
-            3'd3: mytextsignal = "CORE_COLUMN_INCREMENT";
-            3'd4: mytextsignal = "IDLE_UP";
-            default: mytextsignal = "UNKNOWN";
-        endcase
-    end
 endmodule
