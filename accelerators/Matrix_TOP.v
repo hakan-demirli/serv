@@ -26,13 +26,15 @@ module Matrix_TOP #(
     reg [31:0] second_matrix[(SIZE_COLUMN_MAX-1):0][(SIZE_ROW_MAX-1):0];
     reg [31:0] third_matrix[(SIZE_ROW_MAX-1):0][(SIZE_ROW_MAX-1):0];
     wire [31:0] acc[(CORE_COUNT-1):0];
-    wire [7:0] size_row;
-    wire [7:0] size_column;
+    wire [7:0] f_matrix_row_size;
+    wire [7:0] f_matrix_column_size;
+    wire [7:0] s_matrix_column_size;
     wire start;
     
-    assign size_column = control_register[7:0];
-    assign size_row = control_register[15:8];
-    assign start = control_register[16];
+    assign f_matrix_row_size = control_register[7:0];
+    assign f_matrix_column_size = control_register[15:8];
+    assign s_matrix_column_size = control_register[23:16];
+    assign start = control_register[24];
     
     always@(posedge CLOCK_25) begin
         case(address[12:10])
@@ -62,11 +64,12 @@ module Matrix_TOP #(
 
     Matrix_FSM #(
         .CORE_COUNT(CORE_COUNT)
-    )ML0(
+    )FSM_0(
         .CLOCK_25(CLOCK_25),
         .start(start),
-        .size_row(size_row),
-        .size_column(size_column),
+        .f_matrix_row_size(f_matrix_row_size),
+        .f_matrix_column_size(f_matrix_column_size),
+        .s_matrix_column_size(s_matrix_column_size),
         .o_rst(rst),
         .o_column_adr(column_adr),
         .o_row_adr(row_adr),
