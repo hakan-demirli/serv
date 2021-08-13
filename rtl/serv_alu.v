@@ -2,6 +2,7 @@
 module serv_alu
   (
    input wire 	    clk,
+   input wire 		i_rst,
    //State
    input wire 	    i_en,
    input wire 	    i_cnt0,
@@ -59,10 +60,19 @@ module serv_alu
                  (i_rd_sel[2] & result_bool);
 
    always @(posedge clk) begin
-      add_cy_r <= i_en ? add_cy : i_sub;
-
-      if (i_en)
-	cmp_r <= o_cmp;
+   		if (i_rst)
+			add_cy_r <= 1'b0;
+		else
+			add_cy_r <= i_en ? add_cy : i_sub;
+      
+   		if (i_rst)
+			cmp_r <= 1'b0;
+		else begin
+			if (i_en)
+				cmp_r <= o_cmp;
+			else
+				cmp_r <= cmp_r;
+		end
    end
 
 endmodule

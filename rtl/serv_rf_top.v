@@ -110,6 +110,7 @@ module serv_rf_top
        .csr_regs (CSR_REGS))
    rf_ram
      (.i_clk    (clk),
+	  .i_rst    (i_rst),
       .i_waddr (waddr),
       .i_wdata (wdata),
       .i_wen   (wen),

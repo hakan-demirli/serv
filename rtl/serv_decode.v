@@ -3,6 +3,7 @@ module serv_decode #(
    parameter [0:0] PRE_REGISTER = 1
 )(
    input wire        clk,
+   input wire 		 i_rst,
    //Input
    input wire [31:2] i_wb_rdt,
    input wire        i_wb_en,
@@ -226,15 +227,36 @@ module serv_decode #(
       if (PRE_REGISTER) begin
 
          always @(posedge clk) begin
-            if (i_wb_en) begin
-               funct3 <= i_wb_rdt[14:12];
-               imm30  <= i_wb_rdt[30];
-               opcode <= i_wb_rdt[6:2];
-               op20   <= i_wb_rdt[20];
-               op21   <= i_wb_rdt[21];
-               op22   <= i_wb_rdt[22];
-               op26   <= i_wb_rdt[26];
-            end
+			 if( i_rst) begin
+				   funct3 <= 3'b0;
+				   imm30  <= 1'b0;
+				   opcode <= 5'b0;
+				   op20   <= 1'b0;
+				   op21   <= 1'b0;
+				   op22   <= 1'b0;
+				   op26   <= 1'b0;
+			 end
+			 else begin
+				if (i_wb_en) begin
+				   funct3 <= i_wb_rdt[14:12];
+				   imm30  <= i_wb_rdt[30];
+				   opcode <= i_wb_rdt[6:2];
+				   op20   <= i_wb_rdt[20];
+				   op21   <= i_wb_rdt[21];
+				   op22   <= i_wb_rdt[22];
+				   op26   <= i_wb_rdt[26];
+				end
+				else begin
+				   funct3 <= funct3;
+				   imm30  <= imm30;
+				   opcode <= opcode;
+				   op20   <= op20;
+				   op21   <= op21;
+				   op22   <= op22;
+				   op26   <= op26;
+				end
+		 end
+
          end
 
          always @(*) begin

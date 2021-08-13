@@ -209,7 +209,8 @@ module serv_top
      #(.PRE_REGISTER (PRE_REGISTER))
    decode
      (
-      .clk (clk),
+      .clk 					(clk),
+	  .i_rst 				(i_rst),
       //Input
       .i_wb_rdt           (i_ibus_rdt[31:2]),
       .i_wb_en            (i_ibus_ack),
@@ -264,6 +265,7 @@ module serv_top
    serv_immdec immdec
      (
       .i_clk        (clk),
+	  .i_rst        (i_rst),
       //State
       .i_cnt_en     (cnt_en),
       .i_cnt_done   (cnt_done),
@@ -284,6 +286,7 @@ module serv_top
    serv_bufreg bufreg
      (
       .i_clk    (clk),
+	  .i_rst    (i_rst),
       //State
       .i_cnt0   (cnt0),
       .i_cnt1   (cnt1),
@@ -333,6 +336,7 @@ module serv_top
    serv_alu alu
      (
       .clk        (clk),
+	  .i_rst      (i_rst),
       //State
       .i_en       (cnt_en),
       .i_cnt0     (cnt0),
@@ -402,6 +406,7 @@ module serv_top
    mem_if
      (
       .i_clk      (clk),
+	  .i_rst      (i_rst),
       //State
       .i_en       (cnt_en),
       .i_init     (init),
@@ -431,6 +436,7 @@ module serv_top
 	 serv_csr csr
 	   (
 	    .i_clk        (clk),
+		.i_rst        (i_rst),
 	    //State
 	    .i_init       (init),
 	    .i_en         (cnt_en),

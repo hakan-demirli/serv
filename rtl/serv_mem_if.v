@@ -3,6 +3,7 @@ module serv_mem_if
   #(parameter WITH_CSR = 1)
   (
    input wire 	      i_clk,
+   input wire 	      i_rst,
    //State
    input wire 	      i_en,
    input wire 	      i_init,
@@ -85,22 +86,39 @@ module serv_mem_if
 	      //Shift reg mode with optional clearing of bit 5
 	      {dat[6] & !(i_shift_op & i_cnt_done),dat[5:1]};
 
-   assign o_sh_done = dat_shamt[5];
-   assign o_sh_done_r = dat[5];
+	assign o_sh_done = dat_shamt[5];
+	assign o_sh_done_r = dat[5];
 
-   always @(posedge i_clk) begin
-      if (dat_en | i_wb_ack)
-	dat <= i_wb_ack ? i_wb_rdt : {i_op_b, dat[31:7], dat_shamt};
+	always @(posedge i_clk) begin
+	
+		if (i_rst)
+			dat <= 32'd0;
+		else begin
+			if (dat_en | i_wb_ack)
+				dat <= i_wb_ack ? i_wb_rdt : {i_op_b, dat[31:7], dat_shamt};
+			else
+				dat <= dat;
+		end
+		
+		if (i_rst)
+			signbit <= 1'b0;
+		else begin
+			if (dat_valid)
+				signbit <= dat_cur;
+			else
+				signbit <= signbit;
+		end
+	end
 
-      if (dat_valid)
-        signbit <= dat_cur;
-   end
+	/*
+	mem_misalign is checked after the init stage to decide whether to do a data
+	bus transaction or go to the trap state. It is only guaranteed to be correct
+	at this time
+	*/
+	
+	assign o_misalign = WITH_CSR & ((i_lsb[0] & (i_word | i_half)) | (i_lsb[1] & i_word));
+	
+	always @(posedge i_clk) begin
 
-   /*
-    mem_misalign is checked after the init stage to decide whether to do a data
-    bus transaction or go to the trap state. It is only guaranteed to be correct
-    at this time
-    */
-   assign o_misalign = WITH_CSR & ((i_lsb[0] & (i_word | i_half)) | (i_lsb[1] & i_word));
-
+	end
 endmodule
