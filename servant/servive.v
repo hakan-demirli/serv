@@ -6,18 +6,16 @@ module servive
  input wire 	   i_rst_n,
  output wire [7:0]	   q
  );
-   parameter memfile = "hell_gpio_leds_four_increment.hex";
-   
-   //parameter memfile = "hell_2_second_delay.hex";
-   //parameter memfile = "zephyr_hello.hex";
-   //parameter memsize = 8192; // 16384;
-   
-   parameter memsize = 16384;
-   parameter NUM_GPIO = 8;
-   parameter ADR_WIDTH_GPIO = 3;
-   parameter reset_strategy = "MINI";
-   parameter sim = 0;
-   parameter with_csr = 1;
+    parameter memfile = "gg.hex";
+    parameter memsize = 52000;
+    parameter NUM_GPIO = 8;
+    parameter ADR_WIDTH_GPIO = 3;
+    parameter reset_strategy = "MINI";
+    parameter sim = 0;
+    parameter with_csr = 1;
+    parameter CORE_COUNT = 1;
+    parameter SIZE_ROW_MAX = 3;
+    parameter SIZE_COLUMN_MAX = 3;
    
    wire      wb_clk;
    wire      wb_rst;
@@ -35,7 +33,10 @@ module servive
        .NUM_GPIO(NUM_GPIO),
        .reset_strategy(reset_strategy),
        .sim(sim),
-       .with_csr(with_csr))
+       .with_csr(with_csr),
+       .CORE_COUNT(CORE_COUNT),
+       .SIZE_ROW_MAX(SIZE_ROW_MAX),
+       .SIZE_COLUMN_MAX(SIZE_COLUMN_MAX))
    servant
      (.wb_clk (wb_clk),
       .wb_rst (wb_rst),

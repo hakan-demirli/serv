@@ -1,16 +1,23 @@
 `default_nettype none
 module servant
+  #(parameter NUM_GPIO = 8,
+    parameter ADR_WIDTH_GPIO = 3,
+    parameter memfile = "gg.hex",
+    parameter memsize = 40192,
+    parameter reset_strategy = "MINI",
+    parameter sim = 0,
+    parameter with_csr = 1,
+    parameter CORE_COUNT = 3,
+    parameter SIZE_ROW_MAX = 8,
+    parameter SIZE_COLUMN_MAX = 8)
 (
  input wire  wb_clk,
  input wire  wb_rst,
- output wire q);
+ output wire[(NUM_GPIO-1):0] q);
 
-   parameter memfile = "zephyr_hello.hex";
-   parameter memsize = 8192;
-   parameter reset_strategy = "MINI";
-   parameter sim = 0;
-   parameter with_csr = 1;
 
+
+	
    wire 	timer_irq;
 
    wire [31:0] 	wb_ibus_adr;
@@ -41,10 +48,16 @@ module servant
    wire 	wb_mem_cyc;
    wire [31:0] 	wb_mem_rdt;
    wire 	wb_mem_ack;
+    
+   wire [31:0] wb_acc_dat;
+   wire        wb_acc_we;
+   wire [12:0] wb_acc_adr;
+   wire [31:0] wb_acc_rdt;
 
    wire 	wb_gpio_dat;
    wire 	wb_gpio_we;
    wire 	wb_gpio_cyc;
+   wire  [(ADR_WIDTH_GPIO-1):0]    wb_gpio_adr;
    wire 	wb_gpio_rdt;
 
    wire [31:0] 	wb_timer_dat;
@@ -74,7 +87,10 @@ module servant
       .i_wb_cpu_rdt (wb_mem_rdt),
       .i_wb_cpu_ack (wb_mem_ack));
 
-   servant_mux #(sim) servant_mux
+   servant_mux 
+	#(.sim(sim),
+	.ADR_WIDTH_GPIO(ADR_WIDTH_GPIO))
+	servant_mux
      (
       .i_clk (wb_clk),
       .i_rst (wb_rst & (reset_strategy != "NONE")),
@@ -93,16 +109,22 @@ module servant
       .o_wb_mem_cyc (wb_dmem_cyc),
       .i_wb_mem_rdt (wb_dmem_rdt),
 
+      .o_wb_acc_dat(wb_acc_dat),
+      .o_wb_acc_we(wb_acc_we),
+      .o_wb_acc_adr(wb_acc_adr),
+      .i_wb_acc_rdt(wb_acc_rdt),
+      
       .o_wb_gpio_dat (wb_gpio_dat),
       .o_wb_gpio_we  (wb_gpio_we),
       .o_wb_gpio_cyc (wb_gpio_cyc),
+      .o_wb_gpio_adr (wb_gpio_adr),
       .i_wb_gpio_rdt (wb_gpio_rdt),
 
       .o_wb_timer_dat (wb_timer_dat),
       .o_wb_timer_we  (wb_timer_we),
       .o_wb_timer_cyc (wb_timer_cyc),
       .i_wb_timer_rdt (wb_timer_rdt));
-
+     
    servant_ram
      #(.memfile (memfile),
        .depth (memsize),
@@ -138,11 +160,28 @@ module servant
       end
    endgenerate
 
-   servant_gpio gpio
+    Matrix_TOP 
+    #(
+    .CORE_COUNT(CORE_COUNT),
+    .SIZE_ROW_MAX(SIZE_ROW_MAX),
+    .SIZE_COLUMN_MAX(SIZE_COLUMN_MAX)
+    )ACC (
+    .CLOCK_25(wb_clk),
+    .data(wb_acc_dat),
+    .address(wb_acc_adr),
+    .we(wb_acc_we),
+    .o_data_rdt(wb_acc_rdt)
+    );
+
+   servant_gpio  
+	#(.NUM_GPIO(NUM_GPIO),
+    .ADR_WIDTH_GPIO(ADR_WIDTH_GPIO)) 
+	 gpio
      (.i_wb_clk (wb_clk),
       .i_wb_dat (wb_gpio_dat),
       .i_wb_we  (wb_gpio_we),
       .i_wb_cyc (wb_gpio_cyc),
+      .i_wb_gpio_adr (wb_gpio_adr),
       .o_wb_rdt (wb_gpio_rdt),
       .o_gpio   (q));
 

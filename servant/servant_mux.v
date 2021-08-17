@@ -1,10 +1,46 @@
-/*
- mem = 00
- gpio = 01
- timer = 10
- testcon = 11
+ /*
+ Taken from: https://github.com/olofk/serv
+ 
+ ****************************************
+ Change_log:
+ -  12_07_2021__22_01:
+	By :https://github.com/hakan-demirli
+		parameter sim added as an input
+ -  13_07_2021__13_44:
+	By :https://github.com/hakan-demirli
+		o_wb_gpio_adr variable created to increase the number of GPIO pins
+		ADR_WIDTH_GPIO parameter created to change the width of the gpio_adr
+		Info:
+			GPIO_BASE address is 0x40000000
+			There are 8 gpio registers by default, address offset is four
+			first gpio address = 0x4000_0004
+			...
+			seventh gpio address = 0x4000_0018
+			eighth gpio address = 0x4000_001C
+			To Change the number of Gpio pins edit: ADR_WIDTH_GPIO of servant_mux.v and servant_gpio.v
+ -  03_08_2021__13_44:
+	By :https://github.com/hakan-demirli
+		o_wb_acc_xxxx variables are created.
+		Info:
+			ACC_BASE address is 0x20000000
+			first matrix register address = 0x2000_0004
+			...                           = 0x2000_0008
+            ...                           = 0x2000_000C
+ ****************************************
+ acc = 2000_0000
  */
+/*
+    mem = 000
+    acc = 001
+    gpio = 010
+    timer = 100
+    testcon = 110
+    
+ */
+`default_nettype none
 module servant_mux
+  #(parameter sim = 0,
+    parameter ADR_WIDTH_GPIO = 3)
   (
    input wire 	      i_clk,
    input wire 	      i_rst,
@@ -26,19 +62,32 @@ module servant_mux
    output wire 	      o_wb_gpio_dat,
    output wire 	      o_wb_gpio_we,
    output wire 	      o_wb_gpio_cyc,
+   output wire [(ADR_WIDTH_GPIO-1):0]    o_wb_gpio_adr,
    input wire 	      i_wb_gpio_rdt,
+   
+   output wire [31:0] o_wb_acc_dat,
+   output wire 	      o_wb_acc_we,
+   // output wire 	      o_wb_acc_cyc,
+   output wire [12:0] o_wb_acc_adr,
+   input wire  [31:0] i_wb_acc_rdt,
 
    output wire [31:0] o_wb_timer_dat,
    output wire 	      o_wb_timer_we,
    output wire 	      o_wb_timer_cyc,
    input wire [31:0]  i_wb_timer_rdt);
 
-   parameter sim = 0;
+   wire [2:0] 	  s = i_wb_cpu_adr[31:29];
 
-   wire [1:0] 	  s = i_wb_cpu_adr[31:30];
+   assign o_wb_cpu_rdt = (s == 3'b000) ? i_wb_mem_rdt :
+				(s == 3'b001) ? i_wb_acc_rdt :
+				(s == 3'b010) ? i_wb_gpio_rdt :
+				(s == 3'b100) ? i_wb_timer_rdt :
+				i_wb_mem_rdt;
 
-   assign o_wb_cpu_rdt = s[1] ? i_wb_timer_rdt :
-			 s[0] ? {31'd0,i_wb_gpio_rdt} : i_wb_mem_rdt;
+   //assign o_wb_cpu_rdt = s[2] ? i_wb_timer_rdt :
+			 //s[1] ? {31'd0,i_wb_gpio_rdt} : i_wb_mem_rdt;
+             
+             
    always @(posedge i_clk) begin
       o_wb_cpu_ack <= 1'b0;
       if (i_wb_cpu_cyc & !o_wb_cpu_ack)
@@ -51,15 +100,21 @@ module servant_mux
    assign o_wb_mem_dat = i_wb_cpu_dat;
    assign o_wb_mem_sel = i_wb_cpu_sel;
    assign o_wb_mem_we  = i_wb_cpu_we;
-   assign o_wb_mem_cyc = i_wb_cpu_cyc & (s == 2'b00);
+   assign o_wb_mem_cyc = i_wb_cpu_cyc & (s == 3'b000);
+   
+	assign o_wb_acc_dat = i_wb_cpu_dat;
+	assign o_wb_acc_we  = i_wb_cpu_we & i_wb_cpu_cyc & (s == 3'b001);
+	// assign o_wb_acc_cyc = i_wb_cpu_cyc & (s == 3'b001); 
+	assign o_wb_acc_adr = i_wb_cpu_adr[14:2];
 
-   assign o_wb_gpio_dat = i_wb_cpu_dat[0];
-   assign o_wb_gpio_we  = i_wb_cpu_we;
-   assign o_wb_gpio_cyc = i_wb_cpu_cyc & (s == 2'b01);
+	assign o_wb_gpio_dat = i_wb_cpu_dat[0];
+	assign o_wb_gpio_we  = i_wb_cpu_we;
+	assign o_wb_gpio_cyc = i_wb_cpu_cyc & (s == 3'b010);
+	assign o_wb_gpio_adr = i_wb_cpu_adr[ADR_WIDTH_GPIO+1:2];
 
    assign o_wb_timer_dat = i_wb_cpu_dat;
    assign o_wb_timer_we  = i_wb_cpu_we;
-   assign o_wb_timer_cyc = i_wb_cpu_cyc & s[1];
+   assign o_wb_timer_cyc = i_wb_cpu_cyc & s[2];
 
    generate
       if (sim) begin
