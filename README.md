@@ -26,7 +26,7 @@ fusesoc library add fusesoc_cores https://github.com/fusesoc/fusesoc-cores
 ```  
 Get serv repo:  
 ```
-fusesoc library add serv https://github.com/olofk/serv
+fusesoc library add serv https://github.com/hakan-demirli/serv
 ```  
 
 Set your path variables:  
@@ -60,7 +60,7 @@ git clone https://github.com/riscv/riscv-compliance --branch 1.0
 ```  
 Run compliance tests:  
 ```
-cd riscv-compliance && make TARGETDIR=$SERV/riscv-target RISCV_TARGET=serv RISCV_DEVICE=rv32i RISCV_ISA=rv32i TARGET_SIM=$WORKSPACE/build/servant_1.0.2/verilator_tb-verilator/Vservant_sim
+cd riscv-compliance && make TARGETDIR=$SERV/riscv-target RISCV_TARGET=serv RISCV_DEVICE=rv32i RISCV_ISA=rv32i TARGET_SIM=$WORKSPACE/build/servant_1.0.2-r1/verilator_tb-verilator/Vservant_sim
 ```  
 
 
