@@ -7,9 +7,9 @@ module servant_sim
     parameter reset_strategy = "MINI",
     parameter sim = 0,
     parameter with_csr = 1,
-    parameter CORE_COUNT = 3,
-    parameter SIZE_ROW_MAX = 8,
-    parameter SIZE_COLUMN_MAX = 8)
+    parameter F_MATRIX_ROW_SIZE_MAX = 3,
+    parameter F_MATRIX_COLUMN_SIZE_MAX = 3,
+    parameter S_MATRIX_COLUMN_SIZE_MAX = 3)
   (input wire  wb_clk,
    input wire  wb_rst,
    output wire [NUM_GPIO-1:0] q);
@@ -31,9 +31,9 @@ module servant_sim
 	   .NUM_GPIO(NUM_GPIO),
 	   .ADR_WIDTH_GPIO(ADR_WIDTH_GPIO),
 	   .reset_strategy(reset_strategy),
-	   .CORE_COUNT(CORE_COUNT),
-	   .SIZE_ROW_MAX(SIZE_ROW_MAX),
-	   .SIZE_COLUMN_MAX(SIZE_COLUMN_MAX))
+	   .F_MATRIX_ROW_SIZE_MAX(F_MATRIX_ROW_SIZE_MAX),
+	   .F_MATRIX_COLUMN_SIZE_MAX(F_MATRIX_COLUMN_SIZE_MAX),
+	   .S_MATRIX_COLUMN_SIZE_MAX(S_MATRIX_COLUMN_SIZE_MAX))
    dut(wb_clk, wb_rst, q);
 
 endmodule

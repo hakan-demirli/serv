@@ -7,10 +7,10 @@ module servant
     parameter reset_strategy = "MINI",
     parameter sim = 0,
     parameter with_csr = 1,
-    parameter CORE_COUNT = 3,
-    parameter SIZE_ROW_MAX = 8,
-    parameter SIZE_COLUMN_MAX = 8)
-(
+    parameter F_MATRIX_ROW_SIZE_MAX = 3,
+    parameter F_MATRIX_COLUMN_SIZE_MAX = 3,
+    parameter S_MATRIX_COLUMN_SIZE_MAX = 3
+)(
  input wire  wb_clk,
  input wire  wb_rst,
  output wire[(NUM_GPIO-1):0] q);
@@ -51,7 +51,7 @@ module servant
     
    wire [31:0] wb_acc_dat;
    wire        wb_acc_we;
-   wire [12:0] wb_acc_adr;
+   wire [10:0] wb_acc_adr;
    wire [31:0] wb_acc_rdt;
 
    wire 	wb_gpio_dat;
@@ -162,11 +162,11 @@ module servant
 
     Matrix_TOP 
     #(
-    .CORE_COUNT(CORE_COUNT),
-    .SIZE_ROW_MAX(SIZE_ROW_MAX),
-    .SIZE_COLUMN_MAX(SIZE_COLUMN_MAX)
+    .F_MATRIX_ROW_SIZE_MAX(F_MATRIX_ROW_SIZE_MAX),
+    .F_MATRIX_COLUMN_SIZE_MAX(F_MATRIX_COLUMN_SIZE_MAX),
+    .S_MATRIX_COLUMN_SIZE_MAX(S_MATRIX_COLUMN_SIZE_MAX)
     )ACC (
-    .CLOCK_25(wb_clk),
+    .i_clk(wb_clk),
     .data(wb_acc_dat),
     .address(wb_acc_adr),
     .we(wb_acc_we),

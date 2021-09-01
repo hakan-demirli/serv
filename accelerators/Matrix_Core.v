@@ -1,6 +1,7 @@
 module Matrix_Core(
     input wire clk,
     input wire m_rst,
+    input wire run,
     input wire [31:0] a,
     input wire [31:0] b,
     output wire [31:0] acc
@@ -11,12 +12,15 @@ module Matrix_Core(
     assign acc = acc_r;
 
     always@(posedge clk) begin
-        c <= a*b;
-        if (m_rst) begin
-            acc_r <= c;
+        if(run) begin
+            case(m_rst) 
+                1:    acc_r <= a*b;
+                0:    acc_r <= acc_r + a*b;
+                default: acc_r <= 0;
+            endcase
         end
-        else begin
-            acc_r <= acc_r + c;
-        end
+        else
+            acc_r <= 0;
+
     end
 endmodule

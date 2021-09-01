@@ -1,42 +1,3 @@
- /*
- Taken from: https://github.com/olofk/serv
- 
- ****************************************
- Change_log:
- -  12_07_2021__22_01:
-	By :https://github.com/hakan-demirli
-		parameter sim added as an input
- -  13_07_2021__13_44:
-	By :https://github.com/hakan-demirli
-		o_wb_gpio_adr variable created to increase the number of GPIO pins
-		ADR_WIDTH_GPIO parameter created to change the width of the gpio_adr
-		Info:
-			GPIO_BASE address is 0x40000000
-			There are 8 gpio registers by default, address offset is four
-			first gpio address = 0x4000_0004
-			...
-			seventh gpio address = 0x4000_0018
-			eighth gpio address = 0x4000_001C
-			To Change the number of Gpio pins edit: ADR_WIDTH_GPIO of servant_mux.v and servant_gpio.v
- -  03_08_2021__13_44:
-	By :https://github.com/hakan-demirli
-		o_wb_acc_xxxx variables are created.
-		Info:
-			ACC_BASE address is 0x20000000
-			first matrix register address = 0x2000_0004
-			...                           = 0x2000_0008
-            ...                           = 0x2000_000C
- ****************************************
- acc = 2000_0000
- */
-/*
-    mem = 000
-    acc = 001
-    gpio = 010
-    timer = 100
-    testcon = 110
-    
- */
 `default_nettype none
 module servant_mux
   #(parameter sim = 0,
@@ -66,9 +27,8 @@ module servant_mux
    input wire 	      i_wb_gpio_rdt,
    
    output wire [31:0] o_wb_acc_dat,
-   output wire 	      o_wb_acc_we,
-   // output wire 	      o_wb_acc_cyc,
-   output wire [12:0] o_wb_acc_adr,
+   output wire        o_wb_acc_we,
+   output wire [10:0] o_wb_acc_adr,
    input wire  [31:0] i_wb_acc_rdt,
 
    output wire [31:0] o_wb_timer_dat,
@@ -105,7 +65,7 @@ module servant_mux
 	assign o_wb_acc_dat = i_wb_cpu_dat;
 	assign o_wb_acc_we  = i_wb_cpu_we & i_wb_cpu_cyc & (s == 3'b001);
 	// assign o_wb_acc_cyc = i_wb_cpu_cyc & (s == 3'b001); 
-	assign o_wb_acc_adr = i_wb_cpu_adr[14:2];
+	assign o_wb_acc_adr = i_wb_cpu_adr[12:2];
 
 	assign o_wb_gpio_dat = i_wb_cpu_dat[0];
 	assign o_wb_gpio_we  = i_wb_cpu_we;
